@@ -7,9 +7,9 @@ export PATH=$PATH:/tutorial/teaching-utils/;
 ######################################################################################
 
 #1.Perform differential expression analysis between brain and liver using the EdgeR.
-#	Present results using a heatmap with hierarchical clustering in rows and columns and
-#	colored classification of differentially expressed genes (DEGs), i.e. overexpressed in
-#	brain versus liver and the other way around.
+#Present results using a heatmap with hierarchical clustering in rows and columns and
+#colored classification of differentially expressed genes (DEGs), i.e. overexpressed in
+#brain versus liver and the other way around.
 
 cd analysis
 
@@ -29,7 +29,7 @@ awk '$NF<0.01 && $2<-10{print $1"\tover_brain_X_liver"}' edgeR.cpm1.n2.brain_X_l
 
 awk '$NF<0.01 && $2>10 {print $1"\tover_liver_X_brain"}' edgeR.cpm1.n2.brain_X_liver.tsv > edgeR.0.01.over_liver_X_brain.txt
 
-# Extra (is just to make easy the treatment of the files without interferring the ones of the hands-on)
+#Extra (is just to make easy the treatment of the files without interferring the ones of the hands-on)
 
 cp edgeR.0.01.over_brain_X_liver.txt delivery/
 
@@ -66,8 +66,8 @@ cut -f1 gene.edgeR.tsv \
 ######################################################################################
 
 #2. Perform gene ontology enrichment analysis of the two sets of DEGs using the command
-#	line wrapper of GOstats R package for biological processes. Plot results using any
-#	graphical representation and discuss results
+#line wrapper of GOstats R package for biological processes. Plot results using any
+#graphical representation and discuss results
 
 #GO enrichment 
 
@@ -100,22 +100,22 @@ awk 'NR==1{$1="% "$1}{print $1,$2}' edgeR.over_liver_X_brain.BP.tsv
 ######################################################################################
 
 #3. Analyze differential splicing using SUPPA between brain and liver for skipping exon,
-#	intron retention, mutually exclusive exon and alternative first exon. Plot top results using
-#	heatmaps. Different thresholds may be chosen for each event type.
+#intron retention, mutually exclusive exon and alternative first exon. Plot top results using
+#heatmaps. Different thresholds may be chosen for each event type.
 
 cd ..
 cd splicing
 
-# List of transcript ids
+#List of transcript ids
 awk '$3=="transcript" && $0~/gene_type "protein_coding"/{ match($0, /transcript_id "([^"]+)/, id); print id[1] }' /tutorial/refs/gencode.vM4.gtf |sort -u > protein_coding_transcript_IDs.txt
 
-# Genome annotation restricted to exon features and filtered by transcript type
+#Genome annotation restricted to exon features and filtered by transcript type
 cat /tutorial/refs/gencode.vM4.gtf |awk '$3=="exon"' |grep -Ff protein_coding_transcript_IDs.txt > exon-annot.gtf
 
-# Filter transcript TPM matrix
+#Filter transcript TPM matrix
 selectMatrixRows.sh protein_coding_transcript_IDs.txt /tutorial/quantifications/encode.mouse.transcript.TPM.idr_NA.tsv > pc-tx.tsv
 
-# Individual transcript expression matrices
+#Individual transcript expression matrices
 for tissue in Brain Liver; do
     selectMatrixColumns.sh PRNAembryo${tissue}1:PRNAembryo${tissue}2 pc-tx.tsv > expr.${tissue}.tsv
 done
@@ -150,7 +150,7 @@ event=RI; suppa.py diffSplice --method empirical --input localEvents_${event}_st
 event=AF; suppa.py diffSplice --method empirical --input localEvents_${event}_strict.ioe --psi Brain.${event}.psi Liver.${event}.psi --tpm expr.Brain.tsv  expr.Liver.tsv -c -gc -o DS.${event}
 
 #plot SE
-# prepare input for heatmap
+#prepare input for heatmap
 event=SE; awk 'BEGIN{FS=OFS="\t"}NR>1 && $2!="nan" && ($2>0.5 || $2<-0.5) && $3<0.05{print}' DS.${event}.dpsi|cut -f1 > top-examples-SE.txt
 selectMatrixRows.sh top-examples-SE.txt DS.SE.psivec > matrix.top-examples-SE.tsv
 
@@ -166,7 +166,7 @@ selectMatrixRows.sh top-examples-AF.txt DS.AF.psivec > matrix.top-examples-AF.ts
 ggheatmap.R -i matrix.top-examples-AF.tsv -o heatmap_top-examples-AF.pdf --matrix_palette /tutorial/palettes/palSequential.txt --row_dendro --matrix_fill_limits "0,1" -B 8
 
 #plot MX
-# prepare input for heatmap
+#prepare input for heatmap
 event=MX; awk 'BEGIN{FS=OFS="\t"}NR>1 && $2!="nan" && ($2>0.3 || $2<-0.3) && $3<0.05{print}' DS.${event}.dpsi|cut -f1 > top-examples-MX.txt
 selectMatrixRows.sh top-examples-MX.txt DS.MX.psivec > matrix.top-examples-MX.tsv
 
@@ -174,19 +174,19 @@ selectMatrixRows.sh top-examples-MX.txt DS.MX.psivec > matrix.top-examples-MX.ts
 ggheatmap.R -i matrix.top-examples-MX.tsv -o heatmap_top-examples-MX.pdf --matrix_palette /tutorial/palettes/palSequential.txt --row_dendro --matrix_fill_limits "0,1" -B 8
 
 #plot RI
-# prepare input for heatmap
+#prepare input for heatmap
 event=RI; awk 'BEGIN{FS=OFS="\t"}NR>1 && $2!="nan" && ($2>0.3 || $2<-0.3) && $3<0.05{print}' DS.${event}.dpsi|cut -f1 > top-examples-RI.txt
 selectMatrixRows.sh top-examples-RI.txt DS.RI.psivec > matrix.top-examples-RI.tsv
 
-# heatmap alternative first exons top examples
+#heatmap alternative first exons top examples
 ggheatmap.R -i matrix.top-examples-RI.tsv -o heatmap_top-examples-RI.pdf --matrix_palette /tutorial/palettes/palSequential.txt --row_dendro --matrix_fill_limits "0,1" -B 8
 
 ######################################################################################
 
 #4. Find H3K4me3 peaks shared by brain and liver and the ones exclusively found in each
-#	tissue using the narrow peaks found in /tutorial/results using bedtools intersect. Show
-#	results using a bar plot colored by the color code used during the hands-on. Palette is
-#	availables at /tutorial/palettes/palTissue.txt. Any color may be chosen for shared peaks.
+#tissue using the narrow peaks found in /tutorial/results using bedtools intersect. Show
+#results using a bar plot colored by the color code used during the hands-on. Palette is
+#availables at /tutorial/palettes/palTissue.txt. Any color may be chosen for shared peaks.
 
 cd .. 
 
@@ -224,11 +224,11 @@ ggbarplot.R -i input.tsv -o number_of_peaks.pdf --title "Nº of peaks" --y_title
 ######################################################################################
 
 #5. Create a BED file of 200bp up/downstream TSS of genes and overlap DEGs (step 1)
-#	with the 3 sets of H3K4me3 peaks classified in the previous step (4). Show three
-#	examples in the UCSC genome browser, including RNA-seq, ChIP-seq and ATAC-seq
-#	tracks. Ideally, one example of each peak set (i.e. shared peak, peak exclusively called
-#	in brain and peak exclusively called in liver). Discuss the integration of the three datasets
-#	in the TSS of the selected cases.
+#with the 3 sets of H3K4me3 peaks classified in the previous step (4). Show three
+#examples in the UCSC genome browser, including RNA-seq, ChIP-seq and ATAC-seq
+#tracks. Ideally, one example of each peak set (i.e. shared peak, peak exclusively called
+#in brain and peak exclusively called in liver). Discuss the integration of the three datasets
+#in the TSS of the selected cases.
 
 #TSS OF ALL PROTEIN CODING GENES
 awk 'BEGIN{FS=OFS="\t"}$3=="gene" && $0~/gene_type "protein_coding"/ && $7=="+"{ match($0, /transcript_id "([^"]+)/, id); print $1,$4-200,$4+200,$7,id[1] }$3=="gene" && $0~/gene_type "protein_coding"/ && $7=="-"{ match($0, /transcript_id "([^"]+)/, id); print $1,$5-200,$5+200,id[1],".",$7 }' /tutorial/refs/gencode.vM4.gtf  > protein-coding-genes-200up_downTSS.bed
