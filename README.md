@@ -158,7 +158,7 @@ selectMatrixRows.sh top-examples-SE.txt DS.SE.psivec > matrix.top-examples-SE.ts
 ggheatmap.R -i matrix.top-examples-SE.tsv -o heatmap_top-examples-SE.pdf --matrix_palette /tutorial/palettes/palSequential.txt --row_dendro  --matrix_fill_limits "0,1" -B 8
 
 #plot AF
-# prepare input for heatmap
+#prepare input for heatmap
 event=AF; awk 'BEGIN{FS=OFS="\t"}NR>1 && $2!="nan" && ($2>0.5 || $2<-0.5) && $3<0.05{print}' DS.${event}.dpsi|cut -f1 > top-examples-AF.txt
 selectMatrixRows.sh top-examples-AF.txt DS.AF.psivec > matrix.top-examples-AF.tsv
 
